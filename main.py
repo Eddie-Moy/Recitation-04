@@ -5,6 +5,51 @@ from collections import defaultdict
 
 #### PART ONE ###
 
+def plus(x, y):
+    # done. do not change me.
+    return x + y
+        
+def reduce(f, id_, a):
+    # done. do not change me.
+    if len(a) == 0:
+        return id_
+    elif len(a) == 1:
+        return a[0]
+    else:
+        return f(reduce(f, id_, a[:len(a)//2]),
+                 reduce(f, id_, a[len(a)//2:]))
+    
+
+def flatten(sequences):
+    # done. do not change me.
+    return iterate(plus, [], sequences)
+
+def collect(pairs):
+    """
+    # done. do not change me.
+    Implements the collect function (see text Vol II Ch2)
+    E.g.:
+    >>> collect([('i', 1), ('am', 1), ('sam', 1), ('i', 1)])
+    [('am', [1]), ('i', [1, 1]), ('sam', [1])]    
+    """
+    result = defaultdict(list)
+    for pair in sorted(pairs):
+        result[pair[0]].append(pair[1])
+    return list(result.items())
+
+def iterate(f, x, a):
+    # done. do not change me.
+    """
+    Params:
+      f.....function to apply
+      x.....return when a is empty
+      a.....input sequence
+    """
+    if len(a) == 0:
+        return x
+    else:
+        return iterate(f, f(x, a[0]), a[1:])
+    
 def run_map_reduce(map_f, reduce_f, docs):
     # done. do not change me.
     """    
@@ -31,18 +76,21 @@ def word_count_map(doc):
       doc....a string to be split into tokens. split on whitespace.
     Returns:
       a list of tuples of form (token, 1), where token is a whitespace delimited element of this string.
-      
+    
     E.g.
     >>> word_count_map('i am sam i am')
     [('i', 1), ('am', 1), ('sam', 1), ('i', 1), ('am', 1)]
     """
-    ###TODO
-    pass
+    list = []
+    words = str.split(doc)
+    for i in range(len(words)):
+        temp = (words[i],1)
+        list.append(temp)
+    return list
 
 def test_word_count_map():
     assert word_count_map('i am sam i am') == \
            [('i', 1), ('am', 1), ('sam', 1), ('i', 1), ('am', 1)]
-
 def word_count_reduce(group):
     """
     Params:
@@ -55,9 +103,9 @@ def word_count_reduce(group):
     
     NOTE: you should use call the `reduce` function here.
     """
-    ###TODO
-    pass
-    
+    newList = reduce(plus, 0, group[1])
+    return (group[0], newList)
+
 def test_word_count_reduce():
     assert word_count_reduce(['i', [1,1,1]]) == ('i', 3)
 
@@ -65,50 +113,15 @@ def test_word_count():
     assert run_map_reduce(word_count_map, word_count_reduce, ['i am sam i am', 'sam is ham']) == \
            [('am', 2), ('ham', 1), ('i', 2), ('is', 1), ('sam', 2)]
 
-def iterate(f, x, a):
-    # done. do not change me.
-    """
-    Params:
-      f.....function to apply
-      x.....return when a is empty
-      a.....input sequence
-    """
-    if len(a) == 0:
-        return x
-    else:
-        return iterate(f, f(x, a[0]), a[1:])
     
-def flatten(sequences):
-    # done. do not change me.
-    return iterate(plus, [], sequences)
-
-def collect(pairs):
-    """
-    # done. do not change me.
-    Implements the collect function (see text Vol II Ch2)
-    E.g.:
-    >>> collect([('i', 1), ('am', 1), ('sam', 1), ('i', 1)])
-    [('am', [1]), ('i', [1, 1]), ('sam', [1])]    
-    """
-    result = defaultdict(list)
-    for pair in sorted(pairs):
-        result[pair[0]].append(pair[1])
-    return list(result.items())
 
 
-def plus(x, y):
-    # done. do not change me.
-    return x + y
 
-def reduce(f, id_, a):
-    # done. do not change me.
-    if len(a) == 0:
-        return id_
-    elif len(a) == 1:
-        return a[0]
-    else:
-        return f(reduce(f, id_, a[:len(a)//2]),
-                 reduce(f, id_, a[len(a)//2:]))
+
+
+
+
+
     
     
     
@@ -129,12 +142,20 @@ def sentiment_map(doc,
     >>> sentiment_map('it was a terrible waste of time')
     [('negative', 1), ('negative', 1)]
     """
-    ###TODO
-    pass
-
+    list = []
+    words = str.split(doc)
+    for i in range(len(words)):
+        if(words[i] in pos_terms):
+            temp = ("positive",1)
+            list.append(temp)
+        elif(words[i] in neg_terms):
+            remp = ("negative", 1)
+            list.append(remp)
+        
+    return list
 def test_sentiment_map():
     assert sentiment_map('it was a terrible waste of time') == [('negative', 1), ('negative', 1)]
-
+test_sentiment_map()
     
 def test_sentiment():
     docs = [
@@ -145,3 +166,4 @@ def test_sentiment():
     result = run_map_reduce(sentiment_map, word_count_reduce, docs)
     assert result == [('negative', 3), ('positive', 3)]
 
+test_sentiment()
